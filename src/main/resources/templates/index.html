@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout('Home', ~{::section})}">
+<body>
+<section>
+    <div class="p-5 mb-4 bg-white rounded-3 shadow-sm">
+        <h1 class="display-6">Contact Manager</h1>
+        <p class="lead mb-1">
+            Cloud test application for CST-323. This application is deployed to and
+            validated on Microsoft Azure, Heroku, Amazon AWS, and Google Cloud.
+        </p>
+        <p class="text-body-secondary">
+            Contacts currently on file:
+            <strong th:text="${contactCount}">0</strong>
+        </p>
+        <a class="btn btn-primary" th:href="@{/contacts}">View Contacts</a>
+        <a class="btn btn-outline-secondary" th:href="@{/contacts/new}">Add a Contact</a>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Presentation</h5>
+                    <p class="card-text mb-0">Thymeleaf server-side templates styled with Bootstrap 5.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Business</h5>
+                    <p class="card-text mb-0">Spring MVC controller and service layer with SLF4J/Log4j2 logging.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Data</h5>
+                    <p class="card-text mb-0">Spring Data JPA over a MySQL 8 CONTACT table.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
