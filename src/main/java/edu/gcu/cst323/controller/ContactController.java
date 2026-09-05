@@ -104,8 +104,10 @@ public class ContactController {
 
         boolean isNew = contact.getContactId() == null;
 
-        if (isNew && contact.getEmail() != null
-                && contactService.emailAlreadyExists(contact.getEmail())) {
+        // Business rule: EMAIL carries a UNIQUE constraint. Check on add *and* edit, so an
+        // edit that collides with another contact is reported on the field instead of
+        // failing later as a database constraint violation.
+        if (contactService.emailInUseByAnotherContact(contact.getEmail(), contact.getContactId())) {
             bindingResult.rejectValue("email", "email.duplicate",
                     "That email address is already on file.");
         }

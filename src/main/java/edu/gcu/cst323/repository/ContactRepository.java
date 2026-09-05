@@ -15,5 +15,9 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
 
     List<Contact> findAllByOrderByLastNameAscFirstNameAsc();
 
+    /** Duplicate-email check used when adding a new contact. */
     boolean existsByEmailIgnoreCase(String email);
+
+    /** Duplicate-email check used when editing, excluding the contact's own row. */
+    boolean existsByEmailIgnoreCaseAndContactIdNot(String email, Long contactId);
 }

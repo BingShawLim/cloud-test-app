@@ -28,6 +28,25 @@ onto Microsoft Azure, Heroku, Amazon AWS, and Google Cloud.
 | `/contacts/save` | POST | Insert or update a contact | Create / Update |
 | `/contacts/{id}/delete` | POST | Remove a contact | Delete |
 
+## Layers
+
+| Layer | Type |
+|---|---|
+| Presentation | `ContactController` + Thymeleaf templates |
+| Business | `ContactService` (interface) -> `ContactServiceImpl` |
+| Data | `ContactRepository` (Spring Data JPA) -> MySQL `contact` |
+
+The controller is injected with the `ContactService` *interface*, so the presentation layer
+has no compile-time dependency on the business implementation.
+
+### Business rules held in the service layer
+
+- `EMAIL` is unique. The check runs on both add and edit; on an edit the contact's own row
+  is excluded, so re-saving an unchanged contact is not flagged as a duplicate.
+- `CREATED_DATE` is an audit column owned by the service. It is not posted by the form -
+  on an update it is re-read from the database and re-applied, so it cannot be altered or
+  cleared by the browser.
+
 ## Local setup
 
 1. Install MySQL 8 and start it.

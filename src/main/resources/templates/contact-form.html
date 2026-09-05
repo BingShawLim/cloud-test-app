@@ -8,8 +8,10 @@
     <div class="card shadow-sm">
         <div class="card-body">
             <form method="post" th:action="@{/contacts/save}" th:object="${contact}" novalidate>
+                <!-- CONTACT_ID round-trips so the controller can tell an edit from an add.
+                     CREATED_DATE deliberately does NOT: it is an audit column owned by the
+                     service layer and is re-read from the database on every update. -->
                 <input type="hidden" th:field="*{contactId}">
-                <input type="hidden" th:field="*{createdDate}">
 
                 <div class="row g-3">
                     <div class="col-md-6">
