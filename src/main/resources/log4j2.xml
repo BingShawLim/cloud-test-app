@@ -3,16 +3,21 @@
   SLF4J + Log4j2 configuration for the CST-323 cloud test application.
   Logs to the console (stdout) so that Azure, Heroku, AWS, and Google Cloud
   can all collect the log stream, and to a rolling file for local inspection.
+
+  Line format (Activity 6): date/time stamp, level, thread, class name, then the message.
+  The LoggingInterceptor writes the method name into every message as
+  "[LAYER] Class.method() - ENTRY | EXIT | EXCEPTION - ...", so all layers share one
+  naming convention. %M is not used: under AOP it would print the interceptor's method.
 -->
 <Configuration status="WARN">
     <Properties>
         <Property name="LOG_PATTERN">
-            %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36}.%M - %msg%n
+            %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%t] %c{1} - %msg%n
         </Property>
     </Properties>
 
     <Appenders>
-        <Console name="Console" target="SYSTEM_OUT">
+        <Console name="Console" target="SYSTEM_OUT" follow="true">
             <PatternLayout pattern="${LOG_PATTERN}"/>
         </Console>
 

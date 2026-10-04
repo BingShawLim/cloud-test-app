@@ -15,8 +15,8 @@ public class CloudTestApplication {
     private static final Logger log = LoggerFactory.getLogger(CloudTestApplication.class);
 
     public static void main(String[] args) {
-        log.info("CloudTestApplication.main() - ENTRY");
+        log.info("[APP] CloudTestApplication.main() - ENTRY");
         SpringApplication.run(CloudTestApplication.class, args);
-        log.info("CloudTestApplication.main() - EXIT - application started");
+        log.info("[APP] CloudTestApplication.main() - EXIT - application started");
     }
 }

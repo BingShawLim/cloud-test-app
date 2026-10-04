@@ -6,3 +6,7 @@ logs/
 .vscode/
 .DS_Store
 application-local.properties
+
+# Local working folders (screenshots, reports, scratch) - not application code
+Claude outputs/
+_to_delete/

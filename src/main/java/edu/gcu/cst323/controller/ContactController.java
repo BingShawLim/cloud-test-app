@@ -20,6 +20,10 @@ import java.util.Optional;
 /**
  * MVC controller for the Contact Manager test application.
  *
+ * Method entry, exit and exception logging is applied by
+ * {@link edu.gcu.cst323.logging.LoggingInterceptor}; this class only logs business
+ * events (not found, validation failure, handled save/delete failure).
+ *
  * Page map:
  *   GET  /                  home / dashboard
  *   GET  /contacts          list all contacts        (READ)
@@ -43,55 +47,45 @@ public class ContactController {
 
     @GetMapping
     public String home(Model model) {
-        log.info("ContactController.home() - ENTRY");
         model.addAttribute("contactCount", contactService.count());
-        log.info("ContactController.home() - EXIT - view=index");
         return "index";
     }
 
     @GetMapping("/contacts")
     public String listContacts(Model model) {
-        log.info("ContactController.listContacts() - ENTRY");
         model.addAttribute("contacts", contactService.findAll());
-        log.info("ContactController.listContacts() - EXIT - view=contact-list");
         return "contact-list";
     }
 
     @GetMapping("/contacts/new")
     public String newContactForm(Model model) {
-        log.info("ContactController.newContactForm() - ENTRY");
         model.addAttribute("contact", new Contact());
         model.addAttribute("pageTitle", "Add Contact");
-        log.info("ContactController.newContactForm() - EXIT - view=contact-form");
         return "contact-form";
     }
 
     @GetMapping("/contacts/{id}")
     public String viewContact(@PathVariable Long id, Model model, RedirectAttributes redirect) {
-        log.info("ContactController.viewContact() - ENTRY - id={}", id);
         Optional<Contact> contact = contactService.findById(id);
         if (contact.isEmpty()) {
-            log.warn("ContactController.viewContact() - contact not found - id={}", id);
+            log.warn("[CONTROLLER] ContactController.viewContact() - NOT FOUND - id={}", id);
             redirect.addFlashAttribute("errorMessage", "Contact " + id + " was not found.");
             return "redirect:/contacts";
         }
         model.addAttribute("contact", contact.get());
-        log.info("ContactController.viewContact() - EXIT - view=contact-view");
         return "contact-view";
     }
 
     @GetMapping("/contacts/{id}/edit")
     public String editContactForm(@PathVariable Long id, Model model, RedirectAttributes redirect) {
-        log.info("ContactController.editContactForm() - ENTRY - id={}", id);
         Optional<Contact> contact = contactService.findById(id);
         if (contact.isEmpty()) {
-            log.warn("ContactController.editContactForm() - contact not found - id={}", id);
+            log.warn("[CONTROLLER] ContactController.editContactForm() - NOT FOUND - id={}", id);
             redirect.addFlashAttribute("errorMessage", "Contact " + id + " was not found.");
             return "redirect:/contacts";
         }
         model.addAttribute("contact", contact.get());
         model.addAttribute("pageTitle", "Edit Contact");
-        log.info("ContactController.editContactForm() - EXIT - view=contact-form");
         return "contact-form";
     }
 
@@ -100,8 +94,6 @@ public class ContactController {
                               BindingResult bindingResult,
                               Model model,
                               RedirectAttributes redirect) {
-        log.info("ContactController.saveContact() - ENTRY - contact={}", contact);
-
         boolean isNew = contact.getContactId() == null;
 
         // Business rule: EMAIL carries a UNIQUE constraint. Check on add *and* edit, so an
@@ -113,8 +105,9 @@ public class ContactController {
         }
 
         if (bindingResult.hasErrors()) {
-            log.warn("ContactController.saveContact() - validation failed - {} error(s)",
-                    bindingResult.getErrorCount());
+            log.warn("[CONTROLLER] ContactController.saveContact() - VALIDATION FAILED - {} error(s): {}",
+                    bindingResult.getErrorCount(), bindingResult.getFieldErrors().stream()
+                            .map(f -> f.getField() + "=" + f.getCode()).toList());
             model.addAttribute("pageTitle", isNew ? "Add Contact" : "Edit Contact");
             return "contact-form";
         }
@@ -123,10 +116,9 @@ public class ContactController {
             Contact saved = contactService.save(contact);
             redirect.addFlashAttribute("successMessage",
                     "Contact " + saved.getFullName() + (isNew ? " added." : " updated."));
-            log.info("ContactController.saveContact() - EXIT - redirect=/contacts");
             return "redirect:/contacts";
         } catch (Exception e) {
-            log.error("ContactController.saveContact() - EXCEPTION - {}", e.getMessage(), e);
+            log.error("[CONTROLLER] ContactController.saveContact() - SAVE FAILED - {}", e.getMessage(), e);
             model.addAttribute("pageTitle", isNew ? "Add Contact" : "Edit Contact");
             model.addAttribute("errorMessage", "The contact could not be saved. Please try again.");
             return "contact-form";
@@ -135,15 +127,13 @@ public class ContactController {
 
     @PostMapping("/contacts/{id}/delete")
     public String deleteContact(@PathVariable Long id, RedirectAttributes redirect) {
-        log.info("ContactController.deleteContact() - ENTRY - id={}", id);
         try {
             contactService.deleteById(id);
             redirect.addFlashAttribute("successMessage", "Contact deleted successfully.");
         } catch (Exception e) {
-            log.error("ContactController.deleteContact() - EXCEPTION - id={} - {}", id, e.getMessage(), e);
+            log.error("[CONTROLLER] ContactController.deleteContact() - DELETE FAILED - id={} - {}", id, e.getMessage(), e);
             redirect.addFlashAttribute("errorMessage", "Unable to delete contact " + id + ".");
         }
-        log.info("ContactController.deleteContact() - EXIT - redirect=/contacts");
         return "redirect:/contacts";
     }
 }
