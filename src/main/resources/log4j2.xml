@@ -8,6 +8,13 @@
   The LoggingInterceptor writes the method name into every message as
   "[LAYER] Class.method() - ENTRY | EXIT | EXCEPTION - ...", so all layers share one
   naming convention. %M is not used: under AOP it would print the interceptor's method.
+
+  Loggly (Activity 6, DevOps monitoring): an HTTP appender posts every log event to Loggly's
+  HTTP/S event endpoint, tagged cst323_logfile_aws_upload. It is switched on only when the
+  LOGGLY_TOKEN environment variable exists (EnvironmentArbiter), which is the case on AWS
+  Elastic Beanstalk, where the token is an environment property. Local runs and the automated
+  tests never call Loggly, and the token is never committed to Git. The HTTP appender sits
+  behind an Async appender so a slow call to Loggly never delays a web request.
 -->
 <Configuration status="WARN">
     <Properties>
@@ -31,16 +38,36 @@
             </Policies>
             <DefaultRolloverStrategy max="5"/>
         </RollingFile>
+
+        <EnvironmentArbiter propertyName="LOGGLY_TOKEN">
+            <Http name="LogglyHttp"
+                  url="https://logs-01.loggly.com/inputs/${env:LOGGLY_TOKEN}/tag/cst323_logfile_aws_upload/"
+                  ignoreExceptions="true"
+                  connectTimeoutMillis="3000"
+                  readTimeoutMillis="5000">
+                <PatternLayout pattern="${LOG_PATTERN}"/>
+                <Property name="Content-Type" value="text/plain"/>
+            </Http>
+            <Async name="Loggly" bufferSize="1024">
+                <AppenderRef ref="LogglyHttp"/>
+            </Async>
+        </EnvironmentArbiter>
     </Appenders>
 
     <Loggers>
         <Logger name="edu.gcu.cst323" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="RollingFile"/>
+            <EnvironmentArbiter propertyName="LOGGLY_TOKEN">
+                <AppenderRef ref="Loggly"/>
+            </EnvironmentArbiter>
         </Logger>
         <Root level="info">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="RollingFile"/>
+            <EnvironmentArbiter propertyName="LOGGLY_TOKEN">
+                <AppenderRef ref="Loggly"/>
+            </EnvironmentArbiter>
         </Root>
     </Loggers>
 </Configuration>

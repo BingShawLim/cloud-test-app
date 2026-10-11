@@ -1,0 +1,34 @@
+# AWS CodeBuild build specification - CST-323 Cloud Test Application (Activity 6).
+#
+# Automated build pipeline:
+#   push to GitHub (main) -> CodePipeline -> CodeBuild (this file) -> Elastic Beanstalk
+#
+# "mvn package" compiles the code and runs the automated tests (H2 in-memory database,
+# no cloud credentials needed). A failing test stops the pipeline before anything is
+# deployed. The JAR is handed to Elastic Beanstalk (Java SE platform) on its own; the
+# Heroku Procfile in the repository is deliberately left out of the bundle.
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto17
+  pre_build:
+    commands:
+      - echo "Build started on $(date) for commit ${CODEBUILD_RESOLVED_SOURCE_VERSION}"
+      - mvn -v
+  build:
+    commands:
+      - mvn -B clean package
+  post_build:
+    commands:
+      - echo "Build finished on $(date)"
+
+artifacts:
+  files:
+    - target/cloud-test-app.jar
+  discard-paths: yes
+
+cache:
+  paths:
+    - '/root/.m2/**/*'
