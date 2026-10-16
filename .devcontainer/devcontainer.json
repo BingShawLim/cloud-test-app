@@ -1,0 +1,34 @@
+// GitHub Codespaces / Dev Containers configuration (CST-323 Activity 7).
+// Opens the Contact Manager in a cloud IDE with Java 17, Maven, and a MySQL 8 database
+// that is created and seeded from src/main/resources/db on first start.
+{
+  "name": "CST-323 Contact Manager",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "none",
+      "installMaven": "true"
+    }
+  },
+  "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": { "label": "Contact Manager", "onAutoForward": "openBrowser" }
+  },
+  "containerEnv": {
+    "DB_URL": "jdbc:mysql://db:3306/cst323?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true",
+    "DB_USER": "cst323user",
+    "DB_PASSWORD": "changeme"
+  },
+  "postCreateCommand": "mvn -B -q -DskipTests dependency:go-offline",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vmware.vscode-spring-boot",
+        "cweijan.vscode-mysql-client2"
+      ]
+    }
+  }
+}

@@ -1,0 +1,23 @@
+# Two containers for the cloud IDE: the workspace (Java 17 + Maven) and a local MySQL 8.
+# The database credentials match the local defaults in application.properties; they are
+# for this throwaway development container only and are not used by any cloud deployment.
+services:
+  app:
+    image: mcr.microsoft.com/devcontainers/java:1-17-bookworm
+    volumes:
+      - ../..:/workspaces:cached
+    command: sleep infinity
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: devroot
+      MYSQL_DATABASE: cst323
+      MYSQL_USER: cst323user
+      MYSQL_PASSWORD: changeme
+    volumes:
+      - ../src/main/resources/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ../src/main/resources/db/seed-data.sql:/docker-entrypoint-initdb.d/02-seed-data.sql:ro
