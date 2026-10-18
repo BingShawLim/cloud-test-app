@@ -82,3 +82,7 @@ Connection settings read from environment variables so no credentials are commit
 
 `spring.jpa.hibernate.ddl-auto=validate` — the schema is owned by `db/schema.sql`
 so the identical DDL runs against every cloud provider's MySQL instance.
+
+## Activity 7: GitHub Codespaces
+
+This repository opens in GitHub Codespaces with a dev container (Java 17, Maven, MySQL 8). Tested October 2026.
